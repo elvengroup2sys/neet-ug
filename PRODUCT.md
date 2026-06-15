@@ -85,12 +85,13 @@ flags/{id}
 
 1. ~~Frontend scaffold (auth shell, deploy pipeline)~~
 2. PYQ practice flow — attempt question, reveal verified answer + explanation
-3. `api/generate-variation.js` — server-side Claude call generating ONE
+3. `api/generate-variation.js` — server-side Gemini call generating ONE
    variation of a PYQ testing the same concept
    - one question per call (batching causes JSON truncation)
    - server-side only, API key never exposed to the client
    - parse robustly: strip ` ```json ` fences, slice first `{` to last `}`
-   - model `claude-sonnet-4-6`, `max_tokens: 1000`
+   - provider Google Gemini (free tier), model `gemini-2.0-flash`,
+     `maxOutputTokens: 1000`, key in `GEMINI_API_KEY`
 4. Progress tracking + "flag this question" button
 5. **Phase 2** — adaptive engine: auto-surface variations of wrong concepts,
    spaced repetition

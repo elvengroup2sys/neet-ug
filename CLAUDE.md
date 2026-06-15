@@ -15,7 +15,7 @@ product spec, schema, and build order.
 
 - **Secrets**: never commit secrets. Frontend env vars are `VITE_*` and live
   in `vercel-claude/.env` (gitignored, see `.env.example`). Server-side
-  secrets (Claude API key, Razorpay keys) are Vercel environment variables
+  secrets (Gemini API key, Razorpay keys) are Vercel environment variables
   read only inside `/api` functions — never bundled into the client.
 - **Auth**: Firebase Google sign-in via `signInWithPopup`, auth state via
   `onAuthStateChanged` (see `src/firebase.js`). Always handle the
@@ -23,11 +23,14 @@ product spec, schema, and build order.
   blank screen if env vars are missing (`isFirebaseConfigured` flag).
 - **Payments**: Razorpay signature verification happens server-side in
   `/api` only, never trusted from the client.
-- **AI variation generation**: one PYQ variation per Claude API call.
-  Batching multiple questions in one call has caused JSON truncation before
-  — don't do it. Model: `claude-sonnet-4-6`, `max_tokens: 1000`. When parsing
-  the response, strip ` ```json ` fences and slice from the first `{` to the
-  last `}` before `JSON.parse`.
+- **AI variation generation**: one PYQ variation per API call. Batching
+  multiple questions in one call has caused JSON truncation before — don't do
+  it. Provider is Google Gemini (free tier) via
+  `generativelanguage.googleapis.com`, model `gemini-2.0-flash`,
+  `maxOutputTokens: 1000`, server-side only (key in `GEMINI_API_KEY` env var,
+  never bundled into the client). When parsing the response, strip
+  ` ```json ` fences and slice from the first `{` to the last `}` before
+  `JSON.parse`.
 - **Accessibility**: WCAG AA minimum. Check colour contrast against the
   palette in `PRODUCT.md`, ensure visible focus states (`:focus-visible`),
   and use semantic HTML / ARIA roles for dynamic status messages.

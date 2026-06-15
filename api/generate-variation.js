@@ -1,21 +1,17 @@
 // POST /api/generate-variation
 // Generates ONE fresh practice question testing the same concept as a given
-// PYQ. Server-side only - never expose the Claude API key to the client.
+// PYQ. Server-side only - never expose the API key to the client.
+// Uses Google's Gemini API (free tier) as the generation provider.
+const GEMINI_MODEL = 'gemini-2.0-flash'
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST')
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY
+  const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) {
-    const anthropicKeys = Object.keys(process.env)
-      .filter((key) => key.includes('ANTHROPIC'))
-      .map((key) => `|${key}| valueLength=${(process.env[key] || '').length}`)
-    console.error(
-      'generate-variation: ANTHROPIC_API_KEY is not usable. Matching env vars:',
-      JSON.stringify(anthropicKeys),
-    )
     return res.status(500).json({ error: 'AI variations are not configured on the server' })
   }
 
@@ -26,35 +22,37 @@ export default async function handler(req, res) {
   }
 
   const prompt = buildPrompt({ question, options, correctAnswer, concept, subject, topic, difficulty })
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`
 
-  let claudeResponse
+  let aiResponse
   try {
-    claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
+    aiResponse = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
+        'x-goog-api-key': apiKey,
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }],
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          maxOutputTokens: 1000,
+          responseMimeType: 'application/json',
+        },
       }),
     })
   } catch (err) {
-    console.error('generate-variation: request to Claude failed', err)
+    console.error('generate-variation: request to Gemini failed', err)
     return res.status(502).json({ error: 'Failed to reach the AI service' })
   }
 
-  if (!claudeResponse.ok) {
-    const errorText = await claudeResponse.text()
-    console.error('generate-variation: Claude API error', claudeResponse.status, errorText)
+  if (!aiResponse.ok) {
+    const errorText = await aiResponse.text()
+    console.error('generate-variation: Gemini API error', aiResponse.status, errorText)
     return res.status(502).json({ error: 'AI service returned an error' })
   }
 
-  const data = await claudeResponse.json()
-  const rawText = data?.content?.[0]?.text ?? ''
+  const data = await aiResponse.json()
+  const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
   const variation = parseVariation(rawText, concept)
 
   if (!variation) {
