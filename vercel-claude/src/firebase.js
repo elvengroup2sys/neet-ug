@@ -6,7 +6,14 @@ import {
   signOut,
   onAuthStateChanged,
 } from 'firebase/auth'
-import { getFirestore } from 'firebase/firestore'
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  serverTimestamp,
+  arrayUnion,
+  arrayRemove,
+} from 'firebase/firestore'
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -50,4 +57,21 @@ export async function signInWithGoogle() {
 export async function signOutUser() {
   if (!auth) return
   return signOut(auth)
+}
+
+// Records an attempt at a PYQ and updates the student's weak-topics list.
+// No-ops if Firebase isn't configured so the practice flow still works
+// without a backend during development.
+export async function recordAttempt(uid, pyq, isCorrect) {
+  if (!db || !uid) return
+  const ref = doc(db, 'progress', uid)
+  await setDoc(
+    ref,
+    {
+      attempted: { [pyq.id]: isCorrect ? 'correct' : 'wrong' },
+      weakTopics: isCorrect ? arrayRemove(pyq.topic) : arrayUnion(pyq.topic),
+      lastStudied: serverTimestamp(),
+    },
+    { merge: true },
+  )
 }

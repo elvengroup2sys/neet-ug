@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 import Auth from './components/Auth'
+import Practice from './components/Practice'
 import { isFirebaseConfigured, watchAuthState } from './firebase'
 
 function App() {
@@ -37,14 +38,9 @@ function App() {
           exact concept until it sticks.
         </p>
         {isFirebaseConfigured && !user && (
-          <p>Sign in above to start your first practice session.</p>
+          <p>Sign in above to save your progress across sessions.</p>
         )}
-        {isFirebaseConfigured && user && (
-          <p>Welcome back! Practice questions and progress tracking are coming soon.</p>
-        )}
-        {!isFirebaseConfigured && (
-          <p>Practice questions and progress tracking are coming soon.</p>
-        )}
+        <Practice user={user} />
       </main>
 
       <footer className="footer">
