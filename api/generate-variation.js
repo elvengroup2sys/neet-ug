@@ -9,7 +9,11 @@ export default async function handler(req, res) {
 
   const apiKey = process.env.ANTHROPIC_API_KEY
   if (!apiKey) {
-    console.error('generate-variation: ANTHROPIC_API_KEY is not set for this deployment')
+    const anthropicKeys = Object.keys(process.env).filter((key) => key.includes('ANTHROPIC'))
+    console.error(
+      'generate-variation: ANTHROPIC_API_KEY is not set for this deployment. Env keys containing ANTHROPIC:',
+      JSON.stringify(anthropicKeys),
+    )
     return res.status(500).json({ error: 'AI variations are not configured on the server' })
   }
 
