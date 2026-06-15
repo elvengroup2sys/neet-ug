@@ -233,3 +233,19 @@
   color: var(--color-text-muted);
   margin: 0 0 1.25rem;
 }
+
+.practice__tag--variation {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.practice__error {
+  color: #dc2626;
+  margin: 0 0 1rem;
+}
+
+.practice__actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
