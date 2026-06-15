@@ -90,7 +90,7 @@ flags/{id}
    - one question per call (batching causes JSON truncation)
    - server-side only, API key never exposed to the client
    - parse robustly: strip ` ```json ` fences, slice first `{` to last `}`
-   - provider Google Gemini (free tier), model `gemini-2.0-flash`,
+   - provider Google Gemini (free tier), model `gemini-2.5-flash`,
      `maxOutputTokens: 1000`, key in `GEMINI_API_KEY`
 4. Progress tracking + "flag this question" button
 5. **Phase 2** — adaptive engine: auto-surface variations of wrong concepts,

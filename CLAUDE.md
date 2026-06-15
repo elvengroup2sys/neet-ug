@@ -26,7 +26,7 @@ product spec, schema, and build order.
 - **AI variation generation**: one PYQ variation per API call. Batching
   multiple questions in one call has caused JSON truncation before — don't do
   it. Provider is Google Gemini (free tier) via
-  `generativelanguage.googleapis.com`, model `gemini-2.0-flash`,
+  `generativelanguage.googleapis.com`, model `gemini-2.5-flash`,
   `maxOutputTokens: 1000`, server-side only (key in `GEMINI_API_KEY` env var,
   never bundled into the client). When parsing the response, strip
   ` ```json ` fences and slice from the first `{` to the last `}` before
