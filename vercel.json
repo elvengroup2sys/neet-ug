@@ -1,0 +1,7 @@
+{
+  "buildCommand": "cd vercel-claude && npm install && npm run build",
+  "outputDirectory": "vercel-claude/dist",
+  "rewrites": [
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ]
+}
