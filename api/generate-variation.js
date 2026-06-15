@@ -12,13 +12,6 @@ export default async function handler(req, res) {
 
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) {
-    const geminiKeys = Object.keys(process.env)
-      .filter((key) => key.includes('GEMINI'))
-      .map((key) => `|${key}| valueLength=${(process.env[key] || '').length}`)
-    console.error(
-      'generate-variation: GEMINI_API_KEY is not usable. Matching env vars:',
-      JSON.stringify(geminiKeys),
-    )
     return res.status(500).json({ error: 'AI variations are not configured on the server' })
   }
 
