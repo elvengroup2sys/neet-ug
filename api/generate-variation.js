@@ -2,7 +2,7 @@
 // Generates ONE fresh practice question testing the same concept as a given
 // PYQ. Server-side only - never expose the API key to the client.
 // Uses Google's Gemini API (free tier) as the generation provider.
-const GEMINI_MODEL = 'gemini-1.5-flash'
+const GEMINI_MODEL = 'gemini-2.5-flash'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
