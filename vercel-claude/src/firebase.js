@@ -13,6 +13,10 @@ import {
   serverTimestamp,
   arrayUnion,
   arrayRemove,
+  collection,
+  getDocs,
+  query,
+  limit,
 } from 'firebase/firestore'
 
 const firebaseConfig = {
@@ -57,6 +61,15 @@ export async function signInWithGoogle() {
 export async function signOutUser() {
   if (!auth) return
   return signOut(auth)
+}
+
+// Fetches a batch of PYQs from the `pyqs` collection. Returns an empty
+// array if Firebase isn't configured or the collection is empty, so callers
+// can fall back to local sample data.
+export async function fetchPyqs(count = 20) {
+  if (!db) return []
+  const snapshot = await getDocs(query(collection(db, 'pyqs'), limit(count)))
+  return snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }))
 }
 
 // Records an attempt at a PYQ and updates the student's weak-topics list.

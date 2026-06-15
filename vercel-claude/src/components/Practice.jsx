@@ -1,16 +1,42 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { samplePyqs } from '../data/samplePyqs'
-import { recordAttempt } from '../firebase'
+import { fetchPyqs, isFirebaseConfigured, recordAttempt } from '../firebase'
 
 const OPTION_KEYS = ['A', 'B', 'C', 'D']
 
 export default function Practice({ user }) {
+  const [pyqs, setPyqs] = useState(samplePyqs)
+  const [loading, setLoading] = useState(isFirebaseConfigured)
   const [index, setIndex] = useState(0)
   const [selected, setSelected] = useState(null)
   const [revealed, setRevealed] = useState(false)
 
-  const pyq = samplePyqs[index]
+  useEffect(() => {
+    if (!isFirebaseConfigured) return
+    let cancelled = false
+    fetchPyqs()
+      .then((fetched) => {
+        if (!cancelled && fetched.length > 0) setPyqs(fetched)
+      })
+      .catch((err) => console.error('Failed to fetch PYQs', err))
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const pyq = pyqs[index]
   const isCorrect = selected === pyq.correctAnswer
+
+  if (loading) {
+    return (
+      <p role="status" aria-live="polite">
+        Loading questions…
+      </p>
+    )
+  }
 
   const handleSelect = (key) => {
     if (revealed) return
@@ -26,7 +52,7 @@ export default function Practice({ user }) {
   }
 
   const handleNext = () => {
-    setIndex((i) => (i + 1) % samplePyqs.length)
+    setIndex((i) => (i + 1) % pyqs.length)
     setSelected(null)
     setRevealed(false)
   }
